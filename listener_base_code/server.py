@@ -18,16 +18,49 @@ class ProcessData:
 
 
 HOST = '10.0.0.215'
-PORT = 50007
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind((HOST, PORT))
-s.listen(1)
-conn, addr = s.accept()
-print("Connected by")
+PORT1 = 50007
+PORT2 = 50008
 
-data = conn.recv(4096)
-#data_variable = pickle.loads(data)
-conn.close()
-print(json.loads(data))
-# Access the information by doing data_variable.process_id or data_variable.task_id etc..,
-print('Data received from client')
+
+def define_socket(HOST='10.0.0.215',PORT=50009):
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind((HOST, PORT))
+    return s
+    
+
+
+s2=define_socket(HOST, PORT2)
+#s1.listen(1)
+#s2.listen(2)
+#conn, addr = s1.accept()
+#conn2, addr2 = s2.accept()
+
+s1=define_socket(HOST, PORT1)
+s1.listen(1)    
+
+while True:
+    print("Connected now")  
+    conn, addr = s1.accept()
+    data = conn.recv(4096)
+    print(addr[0])
+    
+    
+    #data_variable = pickle.loads(data)
+    if data!=b'':
+        print(json.loads(data))
+    print("data from socket 2 now")
+    # Access the information by doing data_variable.process_id or data_variable.task_id etc..,
+    print('Data received from client')
+    print('Exit now?')
+    conn.close()
+#conn2.close()
+
+
+
+
+
+
+#monitoring registry
+
+
+    
