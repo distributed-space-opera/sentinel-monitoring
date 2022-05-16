@@ -6,7 +6,7 @@ import healthcheck_pb2
 import healthcheck_pb2_grpc
 
 
-channel=grpc.insecure_channel('localhost:50051')
+channel=grpc.insecure_channel('10.0.0.215:50051')
 req = healthcheck_pb2.healthCheckRequest()
 stub=healthcheck_pb2_grpc.SentinelMonitoringStub(channel)
 failed_attempts=0

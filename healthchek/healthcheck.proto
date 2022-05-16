@@ -9,8 +9,15 @@ package stream;
 service SentinelMonitoring {
 
   rpc healthCheck (healthCheckRequest) returns (healthCheckReply) {}
+
+}
+message GetListOfNodesRequest {
+  // Empty body
 }
 
+message GetListOfNodesResponse {
+  repeated string nodeips = 1;
+}
 // The request message containing the user's name.
 message healthCheckRequest {
 }
