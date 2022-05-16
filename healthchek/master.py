@@ -1,14 +1,15 @@
 import grpc
 from concurrent import futures
 import time
-
-
 import replication_pb2
 import replication_pb2_grpc
+
+
+
 class ReplicationService(replication_pb2_grpc.ReplicationServicer):
     def GetListOfNodes(self, request, context):
         reply = replication_pb2.GetListOfNodesResponse()
-        reply.nodeips.extend(["10.0.0.167"])
+        reply.nodeips.extend(["localhost"])
         return reply
 
     def NodeDownUpdate(self, request, context):
