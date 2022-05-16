@@ -9,15 +9,17 @@ package stream;
 service SentinelMonitoring {
 
   rpc healthCheck (healthCheckRequest) returns (healthCheckReply) {}
+  rpc clientAlive (healthCheckRequest) returns(healthCheckReply){}
+
 
 }
-message GetListOfNodesRequest {
-  // Empty body
+//
+message resourceRequest{
+  string nodeip=1;
 }
 
-message GetListOfNodesResponse {
-  repeated string nodeips = 1;
-}
+
+
 // The request message containing the user's name.
 message healthCheckRequest {
 }

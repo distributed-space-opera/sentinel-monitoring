@@ -8,7 +8,7 @@ import replication_pb2_grpc
 class ReplicationService(replication_pb2_grpc.ReplicationServicer):
     def GetListOfNodes(self, request, context):
         reply = replication_pb2.GetListOfNodesResponse()
-        reply.nodeips.extend(["10.0.0.215","10.0.2.3"])
+        reply.nodeips.extend(["10.0.0.167"])
         return reply
 
     def NodeDownUpdate(self, request, context):
