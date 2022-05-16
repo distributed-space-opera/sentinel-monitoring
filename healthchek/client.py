@@ -1,3 +1,5 @@
+import time
+
 import grpc
 
 import healthcheck_pb2
@@ -13,6 +15,7 @@ while True:
     try:
         response=stub.healthCheck(req,timeout = 3)
         print("successful response ",response.status)
+        time.sleep(5)
     except Exception as e:
         failed_attempts+=1
         print("Process failed")
