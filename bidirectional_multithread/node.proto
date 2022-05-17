@@ -31,9 +31,7 @@ message updateLeaderRequest {
 message updateLeaderResponse {
   string status =1;
 }
-message updateNodeListResponse {
-  string status =1;
-}
+
 message GetListOfNodesRequest {
   string workerip=1;
 
@@ -44,4 +42,7 @@ message GetListOfNodesResponse {
 
 message  nodeList{
   repeated string nodeips = 1;
+}
+message updateNodeListResponse {
+  string status =1;
 }
