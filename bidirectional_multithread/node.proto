@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "org.node.protos";
+//option java_outer_classname = "StreamProto";
+
+package stream;
+//this would be implemented on the leader side
+service NodeCommunication {
+
+
+  rpc updateLeader (updateLeaderRequest) returns(updateLeaderResponse){}
+  rpc proposeLeader(proposeLeaderRequest) returns (proposeLeaderResponse){}
+  rpc  GetNodes (GetListOfNodesRequest) returns(GetListOfNodesResponse){}
+  rpc updateNodeMonitorList(nodeList) returns (updateNodeListResponse){}
+}
+
+message proposeLeaderRequest{
+  string termid=1;
+}
+
+message proposeLeaderResponse{
+  string response=1;
+}
+
+
+message updateLeaderRequest {
+  // Empty body
+  string leaderip=1;
+}
+message updateLeaderResponse {
+  string status =1;
+}
+message updateNodeListResponse {
+  string status =1;
+}
+message GetListOfNodesRequest {
+  string workerip=1;
+
+}
+message GetListOfNodesResponse {
+  repeated string nodeips = 1;
+}
+
+message  nodeList{
+  repeated string nodeips = 1;
+}

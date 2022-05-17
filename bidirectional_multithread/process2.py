@@ -4,8 +4,8 @@ import server
 
 if __name__ == "__main__":
     # creating thread
-    c=client.client()
-    s=server.server()
+    c=client.client("process2")
+    s=server.server("process2")
 
     t1 = threading.Thread(target=s.serve, args=("localhost",500052))
     t2 = threading.Thread(target=c.remote_call, args=("localhost",500051,))

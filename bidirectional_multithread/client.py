@@ -7,10 +7,11 @@ import replication_pb2_grpc
 
 
 class client:
-    def __init__(self):
-        pass
+    def __init__(self,nam):
+        self.name=nam
+    #monitors a remote node
     def remote_call(self,ip,port):
-        print("client called")
+        print("client called "+self.name)
         channel=grpc.insecure_channel('{}:{}'.format(ip,port))
         req = healthcheck_pb2.healthCheckRequest()
         stub=healthcheck_pb2_grpc.SentinelMonitoringStub(channel)
@@ -33,3 +34,14 @@ class client:
                     failed_attempts=0
                     return "down"
         return "up"
+
+    def sendDownRequest(ip,masterip="localhost"):
+        channel=grpc.insecure_channel('{}:50051'.format(masterip))
+        req2 = replication_pb2.NodeDownUpdateRequest()
+
+        stub=replication_pb2_grpc.ReplicationStub(channel)
+        req2.nodeip=ip
+        response2 = stub.NodeDownUpdate(req2)
+
+        print("response received from the server is",response2)
+        return response2

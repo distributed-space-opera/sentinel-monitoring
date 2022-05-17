@@ -7,7 +7,7 @@ import healthcheck_pb2_grpc
 import healthcheck_pb2
 class SentinelMonitoringService(healthcheck_pb2_grpc.SentinelMonitoringServicer):
     def healthCheck(self,request,response):
-        print("called")
+        print("called ")
         reply = healthcheck_pb2.healthCheckReply()
         reply.status="success"
         return reply
@@ -19,11 +19,11 @@ class SentinelMonitoringService(healthcheck_pb2_grpc.SentinelMonitoringServicer)
 
 
 class server:
-    def __init__(self):
-        pass
+    def __init__(self,nam):
+        self.name=nam
     def serve(self,ip,port):
 
-        print("executing")
+        print("executing " + self.name)
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
         healthcheck_pb2_grpc.add_SentinelMonitoringServicer_to_server(SentinelMonitoringService(), server)
         server.add_insecure_port('[::]:{}'.format(port))
