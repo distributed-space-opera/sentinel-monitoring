@@ -1,0 +1,23 @@
+syntax = "proto3";
+service Replication {
+  // Methods required for Sentinel
+  rpc NodeDownUpdate(NodeDownUpdateRequest) returns (StatusResponse) {}
+  rpc GetListOfNodes(GetListOfNodesRequest) returns (GetListOfNodesResponse) {}
+
+
+}
+message GetListOfNodesRequest {
+  // Empty body
+}
+
+message GetListOfNodesResponse {
+  repeated string nodeips = 1;
+}
+// The response message containing the generic status of an incoming request
+
+message StatusResponse {
+  string status = 1;
+}
+message NodeDownUpdateRequest {
+  string nodeip = 1;
+}
