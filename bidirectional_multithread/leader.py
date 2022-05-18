@@ -16,7 +16,7 @@ iplist=[]
 ipMonitorsWork={}
 workDistribution={}
 leaderip=""
-
+workerList={}
 processId=-1
 class NodeCommunicationService(node_pb2_grpc.NodeCommunicationServicer):
 
@@ -64,6 +64,11 @@ class NodeCommunicationService(node_pb2_grpc.NodeCommunicationServicer):
         reply.status="ok"
         return reply
     def checkLeader(self, request, context):
+        reply=node_pb2.generalResponse()
+        reply.status="ok"
+        return reply
+
+    def checkMonitor(self, request, context):
         reply=node_pb2.generalResponse()
         reply.status="ok"
         return reply
@@ -152,7 +157,10 @@ class Node:
         self.masternodeip=masternodeip
         self.c = client("client")
         global processId
+        global workerList
         processId = process_id
+        for node in nodelist:
+            workerList[node]="up"
         # self.masternodeport = masternodeport
     def server_listen(self,ip,port):
         self.s = server("node")
@@ -221,16 +229,24 @@ class Node:
             i=0
             # workdistribution={}
             global workDistribution
+            global workerList
             workDistribution = {}
             j=0
+            print("here is the monitor status",workerList)
             nodesToMonitor = self.getNodes(self.masternodeip)
             print("as a leader I have to redistribute this  ",nodesToMonitor)
+            print(" Here is the monitor list",self.nodelist)
+
             while j<len(nodesToMonitor):
                 nodeip=nodesToMonitor[j]
                 #all nodes are distributed work
-
+                if i==len(self.nodelist):
+                    i=0
                 if self.nodelist[i]!=self.ip:
-
+                    if self.checkOnMonitor(self.nodelist[i])=="down":
+                        print("This monitor {} is down".format(self.nodelist[i]))
+                        i+=1
+                        continue
                     if self.nodelist[i] not in workDistribution:
                         workDistribution[self.nodelist[i]]=[]
                     if nodeip not in workDistribution[self.nodelist[i]]:
@@ -283,6 +299,35 @@ class Node:
 
             time.sleep(3)
 
+    def checkOnMonitor(self,workerip):
+
+        channel=grpc.insecure_channel('{}'.format(workerip))
+        req = node_pb2.generalPingRequest()
+        stub=node_pb2_grpc.NodeCommunicationStub(channel)
+        # print('{}:{}'.format(ip, port))
+        failed_attempts=0
+        while True:
+            try:
+                response=stub.checkMonitor(req,timeout = 3)
+                print("successful response ",response)
+                time.sleep(5)
+                return "up"
+
+            except Exception as e:
+                failed_attempts+=1
+                if failed_attempts!=3:
+                    continue
+                print("Process failed")
+                if failed_attempts==3:
+                    print("Failed far too many times. Gang leader down")
+                    failed_attempts=0
+                    return "down"
+
+
+
+
+            time.sleep(3)
+
 
     def proposeLeader(self,workerip):
         global processId
@@ -300,7 +345,9 @@ class Node:
 
     def performMonitorJob(self):
         global workDistribution
+        global leaderip
         flag=0
+        currlist=[]
         while True:
             #print("workDistribution:--> ", workDistribution)
 
@@ -321,7 +368,7 @@ class Node:
             if len(workDistribution)>0:
                 x= self.checkOnLeader()
                 if x =="down":
-                    global leaderip
+
                     print("detected that the leader is down")
 
                     currlist = self.nodelist
@@ -345,8 +392,13 @@ class Node:
 
             time.sleep(10)
         if flag==1:
-            self.state="leader"
             print("here is the self.nodelist to ", self.nodelist)
+            print("here is the current list ", currlist)
+            global workerList
+            if leaderip in workerList:
+                workerList[leaderip]="down"
+            self.state="leader"
+            #self.nodelist.remove(leaderip)
             execute()
 
                 #propose itself as a new leader

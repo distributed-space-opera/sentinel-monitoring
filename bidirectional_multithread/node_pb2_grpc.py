@@ -45,6 +45,11 @@ class NodeCommunicationStub(object):
                 request_serializer=node__pb2.newLeaderRequest.SerializeToString,
                 response_deserializer=node__pb2.newLeaderResponse.FromString,
                 )
+        self.checkMonitor = channel.unary_unary(
+                '/stream.NodeCommunication/checkMonitor',
+                request_serializer=node__pb2.generalPingRequest.SerializeToString,
+                response_deserializer=node__pb2.generalResponse.FromString,
+                )
 
 
 class NodeCommunicationServicer(object):
@@ -87,6 +92,12 @@ class NodeCommunicationServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def checkMonitor(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_NodeCommunicationServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -119,6 +130,11 @@ def add_NodeCommunicationServicer_to_server(servicer, server):
                     servicer.setLeader,
                     request_deserializer=node__pb2.newLeaderRequest.FromString,
                     response_serializer=node__pb2.newLeaderResponse.SerializeToString,
+            ),
+            'checkMonitor': grpc.unary_unary_rpc_method_handler(
+                    servicer.checkMonitor,
+                    request_deserializer=node__pb2.generalPingRequest.FromString,
+                    response_serializer=node__pb2.generalResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -230,5 +246,22 @@ class NodeCommunication(object):
         return grpc.experimental.unary_unary(request, target, '/stream.NodeCommunication/setLeader',
             node__pb2.newLeaderRequest.SerializeToString,
             node__pb2.newLeaderResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def checkMonitor(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/stream.NodeCommunication/checkMonitor',
+            node__pb2.generalPingRequest.SerializeToString,
+            node__pb2.generalResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

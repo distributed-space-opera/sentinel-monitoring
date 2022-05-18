@@ -15,7 +15,7 @@ service NodeCommunication {
   rpc updateNodeMonitorList(nodeList) returns (updateNodeListResponse){}
   rpc checkLeader (generalPingRequest) returns (generalResponse){}
   rpc setLeader (newLeaderRequest) returns (newLeaderResponse){}
-
+  rpc checkMonitor (generalPingRequest) returns (generalResponse){}
 
 }
 
