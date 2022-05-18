@@ -14,7 +14,7 @@ class ReplicationService(replication_pb2_grpc.ReplicationServicer):
         return reply
 
     def NodeDownUpdate(self, request, context):
-        downip=request.nodeip
+        downip=str(request.nodeip)
         print("Detected that node {} is down".format(downip))
         resp = replication_pb2.StatusResponse()
         resp.status = "ok"

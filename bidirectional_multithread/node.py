@@ -18,7 +18,7 @@ class SentinelMonitoringService(healthcheck_pb2_grpc.SentinelMonitoringServicer)
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     healthcheck_pb2_grpc.add_SentinelMonitoringServicer_to_server(SentinelMonitoringService(), server)
-    server.add_insecure_port('[::]:50052')
+    server.add_insecure_port('[::]:50071')
     server.start()
     server.wait_for_termination()
 

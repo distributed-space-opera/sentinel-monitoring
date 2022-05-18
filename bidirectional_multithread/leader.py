@@ -42,31 +42,19 @@ class NodeCommunicationService(node_pb2_grpc.NodeCommunicationServicer):
 class server:
     def __init__(self,nam):
         self.name=nam
-    def serve(self,ipandport):
-        ip = ipandport.split(':')[0]
-        port = ipandport.split(':')[1]
 
-        print("executing " + self.name)
+
+
+    def serve(self,ip,port):
+
+        print("server runnning now " + self.name)
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
         node_pb2_grpc.add_NodeCommunicationServicer_to_server(NodeCommunicationService(), server)
         server.add_insecure_port('{}:{}'.format(ip,port))
         server.start()
         server.wait_for_termination()
 
-    # def nodeListUpdate(self, workerip,nodeList):
-    #     channel = grpc.insecure_channel('{}'.format(workerip))
-    #     req2 = node_pb2.nodeList()
-    #     # req2.extend([])
-    #     print("Workerip: ", workerip)
-    #     stub = node_pb2_grpc.NodeCommunicationStub(channel)
-    #     # req2.nodeips.append(workDistribution[workerip])
-    #
-    #     req2.nodeips.extend(workDistribution[workerip])
-    #     print("Req2: ", req2)
-    #     response2 = stub.updateNodeMonitorList(req2)
-    #
-    #     print("updated the node monitor list for remote ip ", response2)
-    #     return response2
+
 
 
 class client:
@@ -99,14 +87,18 @@ class client:
                     print("Failed far too many times. Convery gang leader")
                     failed_attempts=0
                     return "down"
+            time.sleep(3)
         return "up"
 
     def sendDownRequest(ip, masterip="localhost", masterport=50051):
-        channel=grpc.insecure_channel('{}:{}'.format(masterip, masterport))
+        channel=grpc.insecure_channel("localhost:50051")
         req2 = replication_pb2.NodeDownUpdateRequest()
 
         stub=replication_pb2_grpc.ReplicationStub(channel)
-        req2.nodeip=ip
+
+        req2.nodeip=bytes(str(ip),"utf-8")
+        print("--------------received the {} ".format(str(ip)))
+        print("---------------converted into {} ".format(req2.nodeip))
         response2 = stub.NodeDownUpdate(req2)
 
         print("response received from the server is",response2)
@@ -119,13 +111,11 @@ class Node:
         self.ip=ip
         self.nodelist=nodelist
         self.masternodeip=masternodeip
+        self.c = client("client")
         # self.masternodeport = masternodeport
+    def server_listen(self,ip,port):
         self.s = server("node")
-        self.c =client("node")
-        self.doJob()
-        t1 = threading.Thread(target=self.s.serve, args=(self.ip))
-        t1.start()
-
+        self.s.serve(ip,port)
     def nodeListUpdate(self, workerip):
         global workDistribution
         print("---------->",workDistribution)
@@ -137,8 +127,8 @@ class Node:
         stub = node_pb2_grpc.NodeCommunicationStub(channel)
         # req2.nodeips.append(workDistribution[workerip])
         req2.nodeips.extend(workDistribution[workerip])
-        print("Req2: ", req2.nodeips)
-        response2 = stub.updateNodeMonitorList(req2.nodeips)
+        print("Req2: ", req2)
+        response2 = stub.updateNodeMonitorList(req2)
 
         print("updated the node monitor list for remote ip ", response2)
         return response2
@@ -218,30 +208,54 @@ class Node:
 
             for worker in workDistribution:
                 self.nodeListUpdate(worker)
+                time.sleep(2)
             # self.performMonitorJob()
+            time.sleep(10)
 
 
-
+#cd .\sentinel-monitoring\bidirectional_multithread\
 
 
     def performMonitorJob(self):
         global workDistribution
         while True:
-            print("workDistribution: ", workDistribution)
+            print("workDistribution:--> ", workDistribution)
+
             for worker in workDistribution:
-                self.c.remote_call(worker)
+                resp = self.c.remote_call(worker)
+                if resp=="down":
+                    print(worker)
+                    channel=grpc.insecure_channel("localhost:50051")
+                    req2 = replication_pb2.NodeDownUpdateRequest()
+                    stub=replication_pb2_grpc.ReplicationStub(channel)
+                    req2.nodeip=worker
+                    response2 = stub.NodeDownUpdate(req2)
+
+                    print("response received from the server is",response2)
+
+
                 # self.c.nodeListUpdate(worker)
+            time.sleep(10)
 
-
-    def doJob(self):
-        if self.state=="leader":
+    def doJob(self,role):
+        if role=="leader":
             self.term+=1
             self.performLeaderJob()
         else:
+            print("I am a follower")
             self.performMonitorJob()
 
-if __name__ == "__main__":
+def execute(ipnum=0,role="leader",listen_port=50061):
+    print("role received ",role)
     nodesList = ["localhost:50061", "localhost:50062", "localhost:50063"]
-    leader = Node("leader",nodesList[0],nodesList, "localhost:50051")
+    leader = Node(role,nodesList[ipnum],nodesList, "localhost:50051")
+    t1 = threading.Thread(target=leader.server_listen, args=("localhost",listen_port))
+    t1.start()
+
+    t2 = threading.Thread(target=leader.doJob(role))
+    t2.start()
+    t1.join()
+    t2.join()
+#execute()
     # follower1 = Node("follower", nodesList[1], nodesList, "localhost:50051")
     # follower2 = Node("follower", nodesList[2], nodesList, "localhost:50051")
