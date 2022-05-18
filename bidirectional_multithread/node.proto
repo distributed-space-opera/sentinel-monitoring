@@ -13,14 +13,19 @@ service NodeCommunication {
   rpc proposeLeader(proposeLeaderRequest) returns (proposeLeaderResponse){}
   rpc  GetNodes (GetListOfNodesRequest) returns(GetListOfNodesResponse){}
   rpc updateNodeMonitorList(nodeList) returns (updateNodeListResponse){}
+  rpc checkLeader (generalPingRequest) returns (generalResponse){}
+  rpc setLeader (newLeaderRequest) returns (newLeaderResponse){}
+
+
 }
 
 message proposeLeaderRequest{
-  string termid=1;
+  int64 processId=1;
+  string nodeip=2;
 }
 
 message proposeLeaderResponse{
-  string response=1;
+  string status=1;
 }
 
 
@@ -45,4 +50,16 @@ message  nodeList{
 }
 message updateNodeListResponse {
   string status =1;
+}
+message generalResponse{
+  string status=1;
+}
+message generalPingRequest{
+
+}
+message newLeaderRequest{
+  string nodeip=1;
+}
+message newLeaderResponse{
+string status=1;
 }

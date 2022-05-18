@@ -15,7 +15,20 @@ nodesToMonitor=[]
 iplist=[]
 ipMonitorsWork={}
 workDistribution={}
+leaderip=""
+
+processId=-1
 class NodeCommunicationService(node_pb2_grpc.NodeCommunicationServicer):
+
+
+    def setLeader(self, request, context):
+        global leaderip
+        leaderip=request.nodeip
+        reply=node_pb2.updateLeaderResponse()
+        reply.status = "ok"
+        return reply
+
+
     def GetNodes(self, request, context):
         global workDistribution
         reply = node_pb2.GetListOfNodesResponse()
@@ -27,15 +40,33 @@ class NodeCommunicationService(node_pb2_grpc.NodeCommunicationServicer):
         global workDistribution
         print("update Node: -->", request.nodeips)
         workDistribution = request.nodeips
-        print("workDistribution: ", workDistribution)
+
         reply = node_pb2.updateNodeListResponse()
         reply.status="ok"
         return reply
 
     def proposeLeader(self, request, context):
-        pass
+        remote_process_id=request.processId
+        reply = node_pb2.proposeLeaderResponse()
+        global processId
+        if remote_process_id>processId:
+            reply.status="ok"
+        else:
+            reply.status="deny"
+        return reply
+
+
     def updateLeader(self, request, context):
-        pass
+        global leaderip
+        print("updating the leader to -----> ",request.nodeip)
+        leaderip =request.nodeip
+        reply=node_pb2.updateLeaderResponse()
+        reply.status="ok"
+        return reply
+    def checkLeader(self, request, context):
+        reply=node_pb2.generalResponse()
+        reply.status="ok"
+        return reply
 
 
 
@@ -60,6 +91,7 @@ class server:
 class client:
     def __init__(self,nam):
         self.name=nam
+
     #monitors a remote node
     def remote_call(self,ipandport):
         ip=ipandport.split(':')[0]
@@ -87,7 +119,14 @@ class client:
                     print("Failed far too many times. Convery gang leader")
                     failed_attempts=0
                     return "down"
+
+
+
+
             time.sleep(3)
+
+
+
         return "up"
 
     def sendDownRequest(ip, masterip="localhost", masterport=50051):
@@ -105,33 +144,41 @@ class client:
         return response2
 
 class Node:
-    def __init__(self,state,ip,nodelist,masternodeip):
+    def __init__(self,state,ip,nodelist,masternodeip,process_id):
         self.state=state
         self.term=0
         self.ip=ip
         self.nodelist=nodelist
         self.masternodeip=masternodeip
         self.c = client("client")
+        global processId
+        processId = process_id
         # self.masternodeport = masternodeport
     def server_listen(self,ip,port):
         self.s = server("node")
         self.s.serve(ip,port)
     def nodeListUpdate(self, workerip):
         global workDistribution
-        print("---------->",workDistribution)
-        print("workerip------->",workerip)
         channel = grpc.insecure_channel('{}'.format(workerip))
         req2 = node_pb2.nodeList()
-        # req2.extend([])
-        print("Workerip: ", workerip)
         stub = node_pb2_grpc.NodeCommunicationStub(channel)
         # req2.nodeips.append(workDistribution[workerip])
         req2.nodeips.extend(workDistribution[workerip])
-        print("Req2: ", req2)
         response2 = stub.updateNodeMonitorList(req2)
+        return response2
+    def setLeader(self,workerip):
+        global workDistribution
+        global leaderip
+        channel = grpc.insecure_channel('{}'.format(workerip))
+        req2 = node_pb2.newLeaderRequest()
+        req2.nodeip=leaderip
+        stub = node_pb2_grpc.NodeCommunicationStub(channel)
+
+        response2 = stub.setLeader(req2)
 
         print("updated the node monitor list for remote ip ", response2)
         return response2
+
 
     def getNodes(self,masternodeip='localhost:50051'):
         ipstatus={}
@@ -169,26 +216,15 @@ class Node:
         t1.join()
         """
         while True:
-            nodesToMonitor = self.getNodes(self.masternodeip)
-
-
-            i=0
-            """
-            monitor 
-            10.0.0.216
-            10.0.0.167
-            10.0.0.100
-            
-            """
-
-
 
             workernum=len(self.nodelist)
             i=0
             # workdistribution={}
             global workDistribution
-            # workDistribution = {}
+            workDistribution = {}
             j=0
+            nodesToMonitor = self.getNodes(self.masternodeip)
+            print("as a leader I have to redistribute this  ",nodesToMonitor)
             while j<len(nodesToMonitor):
                 nodeip=nodesToMonitor[j]
                 #all nodes are distributed work
@@ -207,7 +243,9 @@ class Node:
                     i+=1
 
             for worker in workDistribution:
+
                 self.nodeListUpdate(worker)
+                self.setLeader(worker)
                 time.sleep(2)
             # self.performMonitorJob()
             time.sleep(10)
@@ -216,10 +254,55 @@ class Node:
 #cd .\sentinel-monitoring\bidirectional_multithread\
 
 
+    def checkOnLeader(self):
+        global leaderip
+        channel=grpc.insecure_channel('{}'.format(leaderip))
+        req = node_pb2.generalPingRequest()
+        stub=node_pb2_grpc.NodeCommunicationStub(channel)
+        # print('{}:{}'.format(ip, port))
+        failed_attempts=0
+        while True:
+            try:
+                response=stub.checkLeader(req,timeout = 3)
+                print("successful response ",response)
+                time.sleep(5)
+                return "up"
+
+            except Exception as e:
+                failed_attempts+=1
+                if failed_attempts!=3:
+                    continue
+                print("Process failed")
+                if failed_attempts==3:
+                    print("Failed far too many times. Gang leader down")
+                    failed_attempts=0
+                    return "down"
+
+
+
+
+            time.sleep(3)
+
+
+    def proposeLeader(self,workerip):
+        global processId
+        channel = grpc.insecure_channel('{}'.format(workerip))
+        req2 = node_pb2.proposeLeaderRequest()
+        req2.processId = processId
+        req2.nodeip = self.ip
+        stub = node_pb2_grpc.NodeCommunicationStub(channel)
+        # req2.nodeips.append(workDistribution[workerip])
+        response2 = stub.proposeLeader(req2)
+        return response2
+
+
+
+
     def performMonitorJob(self):
         global workDistribution
+        flag=0
         while True:
-            print("workDistribution:--> ", workDistribution)
+            #print("workDistribution:--> ", workDistribution)
 
             for worker in workDistribution:
                 resp = self.c.remote_call(worker)
@@ -235,20 +318,58 @@ class Node:
 
 
                 # self.c.nodeListUpdate(worker)
+            if len(workDistribution)>0:
+                x= self.checkOnLeader()
+                if x =="down":
+                    global leaderip
+                    print("detected that the leader is down")
+
+                    currlist = self.nodelist
+                    if leaderip in currlist:
+                        currlist.remove(leaderip)
+                    if self.ip in currlist:
+                        currlist.remove(self.ip)
+                    count=0
+
+                    for colleague in currlist:
+                        response= self.proposeLeader(colleague)
+                        if response.status=="ok":
+                            count+=1
+                        if count>len(currlist)//2 : #gets majority
+                            flag=1
+                            currlist.append(self.ip)
+                            self.nodelist=currlist
+                            break
+                    if flag==1:
+                        break
+
             time.sleep(10)
+        if flag==1:
+            self.state="leader"
+            print("here is the self.nodelist to ", self.nodelist)
+            execute()
+
+                #propose itself as a new leader
+
+
+
+
+
 
     def doJob(self,role):
+        global leaderip
         if role=="leader":
+            leaderip=self.ip
             self.term+=1
             self.performLeaderJob()
         else:
             print("I am a follower")
             self.performMonitorJob()
 
-def execute(ipnum=0,role="leader",listen_port=50061):
+def execute(ipnum=0,role="leader",listen_port=50061,processid=0):
     print("role received ",role)
     nodesList = ["localhost:50061", "localhost:50062", "localhost:50063"]
-    leader = Node(role,nodesList[ipnum],nodesList, "localhost:50051")
+    leader = Node(role,nodesList[ipnum],nodesList, "localhost:50051",processid)
     t1 = threading.Thread(target=leader.server_listen, args=("localhost",listen_port))
     t1.start()
 

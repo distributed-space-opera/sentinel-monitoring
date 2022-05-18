@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nnode.proto\x12\x06stream\"&\n\x14proposeLeaderRequest\x12\x0e\n\x06termid\x18\x01 \x01(\t\")\n\x15proposeLeaderResponse\x12\x10\n\x08response\x18\x01 \x01(\t\"\'\n\x13updateLeaderRequest\x12\x10\n\x08leaderip\x18\x01 \x01(\t\"&\n\x14updateLeaderResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\"(\n\x16updateNodeListResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\")\n\x15GetListOfNodesRequest\x12\x10\n\x08workerip\x18\x01 \x01(\t\")\n\x16GetListOfNodesResponse\x12\x0f\n\x07nodeips\x18\x01 \x03(\t\"\x1b\n\x08nodeList\x12\x0f\n\x07nodeips\x18\x01 \x03(\t2\xca\x02\n\x11NodeCommunication\x12K\n\x0cupdateLeader\x12\x1b.stream.updateLeaderRequest\x1a\x1c.stream.updateLeaderResponse\"\x00\x12N\n\rproposeLeader\x12\x1c.stream.proposeLeaderRequest\x1a\x1d.stream.proposeLeaderResponse\"\x00\x12K\n\x08GetNodes\x12\x1d.stream.GetListOfNodesRequest\x1a\x1e.stream.GetListOfNodesResponse\"\x00\x12K\n\x15updateNodeMonitorList\x12\x10.stream.nodeList\x1a\x1e.stream.updateNodeListResponse\"\x00\x42\x13\n\x0forg.node.protosP\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nnode.proto\x12\x06stream\"9\n\x14proposeLeaderRequest\x12\x11\n\tprocessId\x18\x01 \x01(\x03\x12\x0e\n\x06nodeip\x18\x02 \x01(\t\"\'\n\x15proposeLeaderResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\"\'\n\x13updateLeaderRequest\x12\x10\n\x08leaderip\x18\x01 \x01(\t\"&\n\x14updateLeaderResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\")\n\x15GetListOfNodesRequest\x12\x10\n\x08workerip\x18\x01 \x01(\t\")\n\x16GetListOfNodesResponse\x12\x0f\n\x07nodeips\x18\x01 \x03(\t\"\x1b\n\x08nodeList\x12\x0f\n\x07nodeips\x18\x01 \x03(\t\"(\n\x16updateNodeListResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\"!\n\x0fgeneralResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\"\x14\n\x12generalPingRequest\"\"\n\x10newLeaderRequest\x12\x0e\n\x06nodeip\x18\x01 \x01(\t\"#\n\x11newLeaderResponse\x12\x0e\n\x06status\x18\x01 \x01(\t2\xd4\x03\n\x11NodeCommunication\x12K\n\x0cupdateLeader\x12\x1b.stream.updateLeaderRequest\x1a\x1c.stream.updateLeaderResponse\"\x00\x12N\n\rproposeLeader\x12\x1c.stream.proposeLeaderRequest\x1a\x1d.stream.proposeLeaderResponse\"\x00\x12K\n\x08GetNodes\x12\x1d.stream.GetListOfNodesRequest\x1a\x1e.stream.GetListOfNodesResponse\"\x00\x12K\n\x15updateNodeMonitorList\x12\x10.stream.nodeList\x1a\x1e.stream.updateNodeListResponse\"\x00\x12\x44\n\x0b\x63heckLeader\x12\x1a.stream.generalPingRequest\x1a\x17.stream.generalResponse\"\x00\x12\x42\n\tsetLeader\x12\x18.stream.newLeaderRequest\x1a\x19.stream.newLeaderResponse\"\x00\x42\x13\n\x0forg.node.protosP\x01\x62\x06proto3')
 
 
 
@@ -22,10 +22,14 @@ _PROPOSELEADERREQUEST = DESCRIPTOR.message_types_by_name['proposeLeaderRequest']
 _PROPOSELEADERRESPONSE = DESCRIPTOR.message_types_by_name['proposeLeaderResponse']
 _UPDATELEADERREQUEST = DESCRIPTOR.message_types_by_name['updateLeaderRequest']
 _UPDATELEADERRESPONSE = DESCRIPTOR.message_types_by_name['updateLeaderResponse']
-_UPDATENODELISTRESPONSE = DESCRIPTOR.message_types_by_name['updateNodeListResponse']
 _GETLISTOFNODESREQUEST = DESCRIPTOR.message_types_by_name['GetListOfNodesRequest']
 _GETLISTOFNODESRESPONSE = DESCRIPTOR.message_types_by_name['GetListOfNodesResponse']
 _NODELIST = DESCRIPTOR.message_types_by_name['nodeList']
+_UPDATENODELISTRESPONSE = DESCRIPTOR.message_types_by_name['updateNodeListResponse']
+_GENERALRESPONSE = DESCRIPTOR.message_types_by_name['generalResponse']
+_GENERALPINGREQUEST = DESCRIPTOR.message_types_by_name['generalPingRequest']
+_NEWLEADERREQUEST = DESCRIPTOR.message_types_by_name['newLeaderRequest']
+_NEWLEADERRESPONSE = DESCRIPTOR.message_types_by_name['newLeaderResponse']
 proposeLeaderRequest = _reflection.GeneratedProtocolMessageType('proposeLeaderRequest', (_message.Message,), {
   'DESCRIPTOR' : _PROPOSELEADERREQUEST,
   '__module__' : 'node_pb2'
@@ -54,13 +58,6 @@ updateLeaderResponse = _reflection.GeneratedProtocolMessageType('updateLeaderRes
   })
 _sym_db.RegisterMessage(updateLeaderResponse)
 
-updateNodeListResponse = _reflection.GeneratedProtocolMessageType('updateNodeListResponse', (_message.Message,), {
-  'DESCRIPTOR' : _UPDATENODELISTRESPONSE,
-  '__module__' : 'node_pb2'
-  # @@protoc_insertion_point(class_scope:stream.updateNodeListResponse)
-  })
-_sym_db.RegisterMessage(updateNodeListResponse)
-
 GetListOfNodesRequest = _reflection.GeneratedProtocolMessageType('GetListOfNodesRequest', (_message.Message,), {
   'DESCRIPTOR' : _GETLISTOFNODESREQUEST,
   '__module__' : 'node_pb2'
@@ -82,27 +79,70 @@ nodeList = _reflection.GeneratedProtocolMessageType('nodeList', (_message.Messag
   })
 _sym_db.RegisterMessage(nodeList)
 
+updateNodeListResponse = _reflection.GeneratedProtocolMessageType('updateNodeListResponse', (_message.Message,), {
+  'DESCRIPTOR' : _UPDATENODELISTRESPONSE,
+  '__module__' : 'node_pb2'
+  # @@protoc_insertion_point(class_scope:stream.updateNodeListResponse)
+  })
+_sym_db.RegisterMessage(updateNodeListResponse)
+
+generalResponse = _reflection.GeneratedProtocolMessageType('generalResponse', (_message.Message,), {
+  'DESCRIPTOR' : _GENERALRESPONSE,
+  '__module__' : 'node_pb2'
+  # @@protoc_insertion_point(class_scope:stream.generalResponse)
+  })
+_sym_db.RegisterMessage(generalResponse)
+
+generalPingRequest = _reflection.GeneratedProtocolMessageType('generalPingRequest', (_message.Message,), {
+  'DESCRIPTOR' : _GENERALPINGREQUEST,
+  '__module__' : 'node_pb2'
+  # @@protoc_insertion_point(class_scope:stream.generalPingRequest)
+  })
+_sym_db.RegisterMessage(generalPingRequest)
+
+newLeaderRequest = _reflection.GeneratedProtocolMessageType('newLeaderRequest', (_message.Message,), {
+  'DESCRIPTOR' : _NEWLEADERREQUEST,
+  '__module__' : 'node_pb2'
+  # @@protoc_insertion_point(class_scope:stream.newLeaderRequest)
+  })
+_sym_db.RegisterMessage(newLeaderRequest)
+
+newLeaderResponse = _reflection.GeneratedProtocolMessageType('newLeaderResponse', (_message.Message,), {
+  'DESCRIPTOR' : _NEWLEADERRESPONSE,
+  '__module__' : 'node_pb2'
+  # @@protoc_insertion_point(class_scope:stream.newLeaderResponse)
+  })
+_sym_db.RegisterMessage(newLeaderResponse)
+
 _NODECOMMUNICATION = DESCRIPTOR.services_by_name['NodeCommunication']
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'\n\017org.node.protosP\001'
   _PROPOSELEADERREQUEST._serialized_start=22
-  _PROPOSELEADERREQUEST._serialized_end=60
-  _PROPOSELEADERRESPONSE._serialized_start=62
-  _PROPOSELEADERRESPONSE._serialized_end=103
-  _UPDATELEADERREQUEST._serialized_start=105
-  _UPDATELEADERREQUEST._serialized_end=144
-  _UPDATELEADERRESPONSE._serialized_start=146
-  _UPDATELEADERRESPONSE._serialized_end=184
-  _UPDATENODELISTRESPONSE._serialized_start=186
-  _UPDATENODELISTRESPONSE._serialized_end=226
-  _GETLISTOFNODESREQUEST._serialized_start=228
-  _GETLISTOFNODESREQUEST._serialized_end=269
-  _GETLISTOFNODESRESPONSE._serialized_start=271
-  _GETLISTOFNODESRESPONSE._serialized_end=312
-  _NODELIST._serialized_start=314
-  _NODELIST._serialized_end=341
-  _NODECOMMUNICATION._serialized_start=344
-  _NODECOMMUNICATION._serialized_end=674
+  _PROPOSELEADERREQUEST._serialized_end=79
+  _PROPOSELEADERRESPONSE._serialized_start=81
+  _PROPOSELEADERRESPONSE._serialized_end=120
+  _UPDATELEADERREQUEST._serialized_start=122
+  _UPDATELEADERREQUEST._serialized_end=161
+  _UPDATELEADERRESPONSE._serialized_start=163
+  _UPDATELEADERRESPONSE._serialized_end=201
+  _GETLISTOFNODESREQUEST._serialized_start=203
+  _GETLISTOFNODESREQUEST._serialized_end=244
+  _GETLISTOFNODESRESPONSE._serialized_start=246
+  _GETLISTOFNODESRESPONSE._serialized_end=287
+  _NODELIST._serialized_start=289
+  _NODELIST._serialized_end=316
+  _UPDATENODELISTRESPONSE._serialized_start=318
+  _UPDATENODELISTRESPONSE._serialized_end=358
+  _GENERALRESPONSE._serialized_start=360
+  _GENERALRESPONSE._serialized_end=393
+  _GENERALPINGREQUEST._serialized_start=395
+  _GENERALPINGREQUEST._serialized_end=415
+  _NEWLEADERREQUEST._serialized_start=417
+  _NEWLEADERREQUEST._serialized_end=451
+  _NEWLEADERRESPONSE._serialized_start=453
+  _NEWLEADERRESPONSE._serialized_end=488
+  _NODECOMMUNICATION._serialized_start=491
+  _NODECOMMUNICATION._serialized_end=959
 # @@protoc_insertion_point(module_scope)

@@ -35,6 +35,16 @@ class NodeCommunicationStub(object):
                 request_serializer=node__pb2.nodeList.SerializeToString,
                 response_deserializer=node__pb2.updateNodeListResponse.FromString,
                 )
+        self.checkLeader = channel.unary_unary(
+                '/stream.NodeCommunication/checkLeader',
+                request_serializer=node__pb2.generalPingRequest.SerializeToString,
+                response_deserializer=node__pb2.generalResponse.FromString,
+                )
+        self.setLeader = channel.unary_unary(
+                '/stream.NodeCommunication/setLeader',
+                request_serializer=node__pb2.newLeaderRequest.SerializeToString,
+                response_deserializer=node__pb2.newLeaderResponse.FromString,
+                )
 
 
 class NodeCommunicationServicer(object):
@@ -65,6 +75,18 @@ class NodeCommunicationServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def checkLeader(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def setLeader(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_NodeCommunicationServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -87,6 +109,16 @@ def add_NodeCommunicationServicer_to_server(servicer, server):
                     servicer.updateNodeMonitorList,
                     request_deserializer=node__pb2.nodeList.FromString,
                     response_serializer=node__pb2.updateNodeListResponse.SerializeToString,
+            ),
+            'checkLeader': grpc.unary_unary_rpc_method_handler(
+                    servicer.checkLeader,
+                    request_deserializer=node__pb2.generalPingRequest.FromString,
+                    response_serializer=node__pb2.generalResponse.SerializeToString,
+            ),
+            'setLeader': grpc.unary_unary_rpc_method_handler(
+                    servicer.setLeader,
+                    request_deserializer=node__pb2.newLeaderRequest.FromString,
+                    response_serializer=node__pb2.newLeaderResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -164,5 +196,39 @@ class NodeCommunication(object):
         return grpc.experimental.unary_unary(request, target, '/stream.NodeCommunication/updateNodeMonitorList',
             node__pb2.nodeList.SerializeToString,
             node__pb2.updateNodeListResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def checkLeader(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/stream.NodeCommunication/checkLeader',
+            node__pb2.generalPingRequest.SerializeToString,
+            node__pb2.generalResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def setLeader(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/stream.NodeCommunication/setLeader',
+            node__pb2.newLeaderRequest.SerializeToString,
+            node__pb2.newLeaderResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
