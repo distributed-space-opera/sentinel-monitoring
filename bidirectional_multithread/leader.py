@@ -38,7 +38,7 @@ class NodeCommunicationService(node_pb2_grpc.NodeCommunicationServicer):
 
     def updateNodeMonitorList(self, request, context):
         global workDistribution
-        print("update Node: -->", request.nodeips)
+        #print("update Node: -->", request.nodeips)
         workDistribution = request.nodeips
 
         reply = node_pb2.updateNodeListResponse()
@@ -83,7 +83,7 @@ class server:
 
     def serve(self,ip,port):
 
-        print("server runnning now " + self.name)
+        #print("server runnning now " + self.name)
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
         node_pb2_grpc.add_NodeCommunicationServicer_to_server(NodeCommunicationService(), server)
         server.add_insecure_port('{}:{}'.format(ip,port))
@@ -101,8 +101,8 @@ class client:
     def remote_call(self,ipandport):
         ip=ipandport.split(':')[0]
         port = ipandport.split(':')[1]
-        print("client called "+self.name)
-        print("ipandport: ", ipandport)
+        #print("client called "+self.name)
+        #print("ipandport: ", ipandport)
         channel=grpc.insecure_channel('{}:{}'.format(ip,port))
         req = healthcheck_pb2.healthCheckRequest()
         stub=healthcheck_pb2_grpc.SentinelMonitoringStub(channel)
@@ -111,7 +111,7 @@ class client:
         while True:
             try:
                 response=stub.healthCheck(req,)
-                print("successful response ",response)
+                print("successful response from {} -> {} ".format(ipandport, response))
                 time.sleep(5)
                 return "up"
 
@@ -119,9 +119,9 @@ class client:
                 failed_attempts+=1
                 if failed_attempts!=3:
                     continue
-                print("Process failed")
+                #print("Process failed")
                 if failed_attempts==3:
-                    print("Failed far too many times. Convery gang leader")
+                    print("Failed far too many times. Convey master node")
                     failed_attempts=0
                     return "down"
 
@@ -139,13 +139,13 @@ class client:
         req2 = master_comm_pb2.NodeDownUpdateRequest()
 
         stub=master_comm_pb2_grpc.ReplicationStub(channel)
-
-        req2.nodeip=bytes(str(ip),"utf-8")
-        print("--------------received the {} ".format(str(ip)))
-        print("---------------converted into {} ".format(req2.nodeip))
+        print(str(ip).split(":")[0])
+        req2.nodeip=bytes(str(ip).split(":")[0],"utf-8")
+        #print("--------------received the {} ".format(str(ip)))
+        #print("---------------converted into {} ".format(req2.nodeip))
         response2 = stub.NodeDownUpdate(req2)
 
-        print("response received from the server is",response2)
+        #print("response received from the server is",response2)
         return response2
 
 class Node:
@@ -184,7 +184,7 @@ class Node:
 
         response2 = stub.setLeader(req2)
 
-        print("updated the node monitor list for remote ip ", response2)
+        #print("updated the node monitor list for remote ip ", response2)
         return response2
 
 
@@ -194,21 +194,21 @@ class Node:
 
         #get new nodes from master
         channel=grpc.insecure_channel('{}'.format(masternodeip))
-        print("channel",channel)
+        #print("channel",channel)
         stub=master_comm_pb2_grpc.ReplicationStub(channel)
-        print("stub",stub)
+        #print("stub",stub)
         req = master_comm_pb2.GetListOfNodesRequest()
-        print("req",req)
+        #print("req",req)
         response =stub.GetListOfNodes(req)
-        print("response")
+        #print("response")
         response=str(response).split("\n")[:-1]
         print(response)
         for i in response:
-            ip = i.split(":")[1].strip()[1:]+":"+i.split(":")[2].strip()[0:-1]
-            print(ip)
+            ip = str(i.split(":")[1].strip())[1:-1]+":6080"
+            #print(ip)
             if ip not in ipstatus:
                 ipstatus[ip]="up"
-        print(ipstatus)
+        #print(ipstatus)
         return list(ipstatus.keys())
 
 
@@ -236,10 +236,10 @@ class Node:
             global workerList
             workDistribution = {}
             j=0
-            print("here is the monitor status",workerList)
+            #print("here is the monitor status",workerList)
             nodesToMonitor = self.getNodes(self.masternodeip)
-            print("as a leader I have to redistribute this  ",nodesToMonitor)
-            print(" Here is the monitor list",self.nodelist)
+            print("nodes to monitor:  ",nodesToMonitor)
+            print(" Here is the follower list",self.nodelist)
 
             while j<len(nodesToMonitor):
                 nodeip=nodesToMonitor[j]
@@ -268,7 +268,7 @@ class Node:
                 self.setLeader(worker)
                 time.sleep(2)
             # self.performMonitorJob()
-            time.sleep(10)
+            time.sleep(3)
 
 
 #cd .\sentinel-monitoring\bidirectional_multithread\
@@ -284,7 +284,7 @@ class Node:
         while True:
             try:
                 response=stub.checkLeader(req,timeout = 3)
-                print("successful response ",response)
+                #print("successful response ",response)
                 time.sleep(5)
                 return "up"
 
@@ -292,7 +292,7 @@ class Node:
                 failed_attempts+=1
                 if failed_attempts!=3:
                     continue
-                print("Process failed")
+                #print("Process failed")
                 if failed_attempts==3:
                     print("Failed far too many times. Gang leader down")
                     failed_attempts=0
@@ -353,7 +353,7 @@ class Node:
         flag=0
         currlist=[]
         while True:
-            #print("workDistribution:--> ", workDistribution)
+            print("workDistribution:--> ", workDistribution)
 
             for worker in workDistribution:
                 resp = self.c.remote_call(worker)
@@ -362,11 +362,13 @@ class Node:
                     channel=grpc.insecure_channel("192.168.43.177:6090")
                     req2 = master_comm_pb2.NodeDownUpdateRequest()
                     stub=master_comm_pb2_grpc.ReplicationStub(channel)
-                    req2.nodeip=worker
+                    req2.nodeip=worker.split(":")[0]
+                    print("Node {} is down".format(worker))
                     response2 = stub.NodeDownUpdate(req2)
 
                     print("response received from the server is",response2)
-
+                else:
+                    print("successful response from {} Node".format(worker))
 
                 # self.c.nodeListUpdate(worker)
             if len(workDistribution)>0:
