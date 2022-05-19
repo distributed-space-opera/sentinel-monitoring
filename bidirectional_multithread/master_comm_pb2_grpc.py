@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import replication_pb2 as replication__pb2
+import master_comm_pb2 as master__comm__pb2
 
 
 class ReplicationStub(object):
@@ -15,14 +15,14 @@ class ReplicationStub(object):
             channel: A grpc.Channel.
         """
         self.NodeDownUpdate = channel.unary_unary(
-                '/Replication/NodeDownUpdate',
-                request_serializer=replication__pb2.NodeDownUpdateRequest.SerializeToString,
-                response_deserializer=replication__pb2.StatusResponse.FromString,
+                '/stream.Replication/NodeDownUpdate',
+                request_serializer=master__comm__pb2.NodeDownUpdateRequest.SerializeToString,
+                response_deserializer=master__comm__pb2.NodeDownUpdateResponse.FromString,
                 )
         self.GetListOfNodes = channel.unary_unary(
-                '/Replication/GetListOfNodes',
-                request_serializer=replication__pb2.GetListOfNodesRequest.SerializeToString,
-                response_deserializer=replication__pb2.GetListOfNodesResponse.FromString,
+                '/stream.Replication/GetListOfNodes',
+                request_serializer=master__comm__pb2.GetListOfNodesRequest.SerializeToString,
+                response_deserializer=master__comm__pb2.GetListOfNodesResponse.FromString,
                 )
 
 
@@ -47,17 +47,17 @@ def add_ReplicationServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'NodeDownUpdate': grpc.unary_unary_rpc_method_handler(
                     servicer.NodeDownUpdate,
-                    request_deserializer=replication__pb2.NodeDownUpdateRequest.FromString,
-                    response_serializer=replication__pb2.StatusResponse.SerializeToString,
+                    request_deserializer=master__comm__pb2.NodeDownUpdateRequest.FromString,
+                    response_serializer=master__comm__pb2.NodeDownUpdateResponse.SerializeToString,
             ),
             'GetListOfNodes': grpc.unary_unary_rpc_method_handler(
                     servicer.GetListOfNodes,
-                    request_deserializer=replication__pb2.GetListOfNodesRequest.FromString,
-                    response_serializer=replication__pb2.GetListOfNodesResponse.SerializeToString,
+                    request_deserializer=master__comm__pb2.GetListOfNodesRequest.FromString,
+                    response_serializer=master__comm__pb2.GetListOfNodesResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'Replication', rpc_method_handlers)
+            'stream.Replication', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
@@ -76,9 +76,9 @@ class Replication(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/Replication/NodeDownUpdate',
-            replication__pb2.NodeDownUpdateRequest.SerializeToString,
-            replication__pb2.StatusResponse.FromString,
+        return grpc.experimental.unary_unary(request, target, '/stream.Replication/NodeDownUpdate',
+            master__comm__pb2.NodeDownUpdateRequest.SerializeToString,
+            master__comm__pb2.NodeDownUpdateResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -93,8 +93,8 @@ class Replication(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/Replication/GetListOfNodes',
-            replication__pb2.GetListOfNodesRequest.SerializeToString,
-            replication__pb2.GetListOfNodesResponse.FromString,
+        return grpc.experimental.unary_unary(request, target, '/stream.Replication/GetListOfNodes',
+            master__comm__pb2.GetListOfNodesRequest.SerializeToString,
+            master__comm__pb2.GetListOfNodesResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

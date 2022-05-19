@@ -16,37 +16,37 @@ class NodeCommunicationStub(object):
             channel: A grpc.Channel.
         """
         self.updateLeader = channel.unary_unary(
-                '/stream.NodeCommunication/updateLeader',
+                '/stream1.NodeCommunication/updateLeader',
                 request_serializer=node__pb2.updateLeaderRequest.SerializeToString,
                 response_deserializer=node__pb2.updateLeaderResponse.FromString,
                 )
         self.proposeLeader = channel.unary_unary(
-                '/stream.NodeCommunication/proposeLeader',
+                '/stream1.NodeCommunication/proposeLeader',
                 request_serializer=node__pb2.proposeLeaderRequest.SerializeToString,
                 response_deserializer=node__pb2.proposeLeaderResponse.FromString,
                 )
         self.GetNodes = channel.unary_unary(
-                '/stream.NodeCommunication/GetNodes',
+                '/stream1.NodeCommunication/GetNodes',
                 request_serializer=node__pb2.GetListOfNodesRequest.SerializeToString,
                 response_deserializer=node__pb2.GetListOfNodesResponse.FromString,
                 )
         self.updateNodeMonitorList = channel.unary_unary(
-                '/stream.NodeCommunication/updateNodeMonitorList',
+                '/stream1.NodeCommunication/updateNodeMonitorList',
                 request_serializer=node__pb2.nodeList.SerializeToString,
                 response_deserializer=node__pb2.updateNodeListResponse.FromString,
                 )
         self.checkLeader = channel.unary_unary(
-                '/stream.NodeCommunication/checkLeader',
+                '/stream1.NodeCommunication/checkLeader',
                 request_serializer=node__pb2.generalPingRequest.SerializeToString,
                 response_deserializer=node__pb2.generalResponse.FromString,
                 )
         self.setLeader = channel.unary_unary(
-                '/stream.NodeCommunication/setLeader',
+                '/stream1.NodeCommunication/setLeader',
                 request_serializer=node__pb2.newLeaderRequest.SerializeToString,
                 response_deserializer=node__pb2.newLeaderResponse.FromString,
                 )
         self.checkMonitor = channel.unary_unary(
-                '/stream.NodeCommunication/checkMonitor',
+                '/stream1.NodeCommunication/checkMonitor',
                 request_serializer=node__pb2.generalPingRequest.SerializeToString,
                 response_deserializer=node__pb2.generalResponse.FromString,
                 )
@@ -138,7 +138,7 @@ def add_NodeCommunicationServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'stream.NodeCommunication', rpc_method_handlers)
+            'stream1.NodeCommunication', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
@@ -158,7 +158,7 @@ class NodeCommunication(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/stream.NodeCommunication/updateLeader',
+        return grpc.experimental.unary_unary(request, target, '/stream1.NodeCommunication/updateLeader',
             node__pb2.updateLeaderRequest.SerializeToString,
             node__pb2.updateLeaderResponse.FromString,
             options, channel_credentials,
@@ -175,7 +175,7 @@ class NodeCommunication(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/stream.NodeCommunication/proposeLeader',
+        return grpc.experimental.unary_unary(request, target, '/stream1.NodeCommunication/proposeLeader',
             node__pb2.proposeLeaderRequest.SerializeToString,
             node__pb2.proposeLeaderResponse.FromString,
             options, channel_credentials,
@@ -192,7 +192,7 @@ class NodeCommunication(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/stream.NodeCommunication/GetNodes',
+        return grpc.experimental.unary_unary(request, target, '/stream1.NodeCommunication/GetNodes',
             node__pb2.GetListOfNodesRequest.SerializeToString,
             node__pb2.GetListOfNodesResponse.FromString,
             options, channel_credentials,
@@ -209,7 +209,7 @@ class NodeCommunication(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/stream.NodeCommunication/updateNodeMonitorList',
+        return grpc.experimental.unary_unary(request, target, '/stream1.NodeCommunication/updateNodeMonitorList',
             node__pb2.nodeList.SerializeToString,
             node__pb2.updateNodeListResponse.FromString,
             options, channel_credentials,
@@ -226,7 +226,7 @@ class NodeCommunication(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/stream.NodeCommunication/checkLeader',
+        return grpc.experimental.unary_unary(request, target, '/stream1.NodeCommunication/checkLeader',
             node__pb2.generalPingRequest.SerializeToString,
             node__pb2.generalResponse.FromString,
             options, channel_credentials,
@@ -243,7 +243,7 @@ class NodeCommunication(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/stream.NodeCommunication/setLeader',
+        return grpc.experimental.unary_unary(request, target, '/stream1.NodeCommunication/setLeader',
             node__pb2.newLeaderRequest.SerializeToString,
             node__pb2.newLeaderResponse.FromString,
             options, channel_credentials,
@@ -260,7 +260,7 @@ class NodeCommunication(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/stream.NodeCommunication/checkMonitor',
+        return grpc.experimental.unary_unary(request, target, '/stream1.NodeCommunication/checkMonitor',
             node__pb2.generalPingRequest.SerializeToString,
             node__pb2.generalResponse.FromString,
             options, channel_credentials,

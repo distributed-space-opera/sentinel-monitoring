@@ -4,12 +4,12 @@ import server
 import time
 import healthcheck_pb2
 import healthcheck_pb2_grpc
-import replication_pb2
-import replication_pb2_grpc
 import grpc
 import node_pb2
 import node_pb2_grpc
 from concurrent import futures
+
+import master_comm_pb2_grpc, master_comm_pb2
 
 nodesToMonitor=[]
 iplist=[]
@@ -110,7 +110,7 @@ class client:
         failed_attempts=0
         while True:
             try:
-                response=stub.healthCheck(req,timeout = 3)
+                response=stub.healthCheck(req,)
                 print("successful response ",response)
                 time.sleep(5)
                 return "up"
@@ -135,10 +135,10 @@ class client:
         return "up"
 
     def sendDownRequest(ip, masterip="localhost", masterport=50051):
-        channel=grpc.insecure_channel("localhost:50051")
-        req2 = replication_pb2.NodeDownUpdateRequest()
+        channel=grpc.insecure_channel("192.168.43.177:6090")
+        req2 = master_comm_pb2.NodeDownUpdateRequest()
 
-        stub=replication_pb2_grpc.ReplicationStub(channel)
+        stub=master_comm_pb2_grpc.ReplicationStub(channel)
 
         req2.nodeip=bytes(str(ip),"utf-8")
         print("--------------received the {} ".format(str(ip)))
@@ -188,15 +188,19 @@ class Node:
         return response2
 
 
-    def getNodes(self,masternodeip='localhost:50051'):
+    def getNodes(self,masternodeip='192.168.43.177:6090'):
         ipstatus={}
 
 
         #get new nodes from master
         channel=grpc.insecure_channel('{}'.format(masternodeip))
-        stub=replication_pb2_grpc.ReplicationStub(channel)
-        req = replication_pb2.GetListOfNodesRequest()
-        response =stub.GetListOfNodes(req,timeout = 3)
+        print("channel",channel)
+        stub=master_comm_pb2_grpc.ReplicationStub(channel)
+        print("stub",stub)
+        req = master_comm_pb2.GetListOfNodesRequest()
+        print("req",req)
+        response =stub.GetListOfNodes(req)
+        print("response")
         response=str(response).split("\n")[:-1]
         print(response)
         for i in response:
@@ -355,9 +359,9 @@ class Node:
                 resp = self.c.remote_call(worker)
                 if resp=="down":
                     print(worker)
-                    channel=grpc.insecure_channel("localhost:50051")
-                    req2 = replication_pb2.NodeDownUpdateRequest()
-                    stub=replication_pb2_grpc.ReplicationStub(channel)
+                    channel=grpc.insecure_channel("192.168.43.177:6090")
+                    req2 = master_comm_pb2.NodeDownUpdateRequest()
+                    stub=master_comm_pb2_grpc.ReplicationStub(channel)
                     req2.nodeip=worker
                     response2 = stub.NodeDownUpdate(req2)
 
@@ -421,7 +425,7 @@ class Node:
 def execute(ipnum=0,role="leader",listen_port=50061,processid=0):
     print("role received ",role)
     nodesList = ["localhost:50061", "localhost:50062", "localhost:50063"]
-    leader = Node(role,nodesList[ipnum],nodesList, "localhost:50051",processid)
+    leader = Node(role,nodesList[ipnum],nodesList, "192.168.43.177:6090",processid)
     t1 = threading.Thread(target=leader.server_listen, args=("localhost",listen_port))
     t1.start()
 
